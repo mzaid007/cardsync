@@ -32,7 +32,7 @@ let currentWorker = null;
 
 // Settings (loaded from localStorage or defaults)
 const settings = {
-    defaultCountryCode: localStorage.getItem('cc_default_country_code') || '91',
+    defaultCountryCode: localStorage.getItem('cc_default_country_code') || '+91',
     defaultMessageTemplate: localStorage.getItem('cc_default_message') || "Hi! It was great meeting you today. Let's keep in touch!"
 };
 
@@ -329,6 +329,9 @@ function handleOcrSuccess(text) {
 function parsePhoneNumber(rawText, defaultCountryCode) {
     const PHONE_KEYWORDS = ['tel', 'mob', 'cell', 'phone', 'whatsapp', 'ph:', 'm:', 'p:', 't:', 'contact'];
     
+    // Clean defaultCountryCode to digits only (e.g., '+91' -> '91')
+    const cleanDefault = defaultCountryCode.replace(/[^\d]/g, '');
+    
     // Matches candidate numbers that contain spaces, dashes, dots, parentheses
     const regex = /\+?[\d-.\s()]{7,22}\d/g;
     const matches = rawText.match(regex) || [];
@@ -383,7 +386,7 @@ function parsePhoneNumber(rawText, defaultCountryCode) {
     }).filter(c => c !== null);
 
     if (candidates.length === 0) {
-        return { countryCode: defaultCountryCode, localNumber: '' };
+        return { countryCode: cleanDefault, localNumber: '' };
     }
 
     // Sort by score descending
@@ -410,15 +413,15 @@ function parsePhoneNumber(rawText, defaultCountryCode) {
 
         // Custom unmatched country code (guess first 2 digits or let user handle)
         return {
-            countryCode: defaultCountryCode,
+            countryCode: cleanDefault,
             localNumber: candidate
         };
     } else {
         // Local number check. Does it start with the default code (e.g. 91)?
-        if (candidate.startsWith(defaultCountryCode) && candidate.length > defaultCountryCode.length + 5) {
+        if (candidate.startsWith(cleanDefault) && candidate.length > cleanDefault.length + 5) {
             return {
-                countryCode: defaultCountryCode,
-                localNumber: candidate.substring(defaultCountryCode.length)
+                countryCode: cleanDefault,
+                localNumber: candidate.substring(cleanDefault.length)
             };
         }
 
@@ -429,7 +432,7 @@ function parsePhoneNumber(rawText, defaultCountryCode) {
         }
 
         return {
-            countryCode: defaultCountryCode,
+            countryCode: cleanDefault,
             localNumber: local
         };
     }
@@ -499,10 +502,13 @@ function resetScanner() {
 
 // Save Configuration settings
 function saveSettings() {
-    const cc = defaultCountryCodeInput.value.trim().replace(/[^\d]/g, '');
+    let cc = defaultCountryCodeInput.value.trim();
+    if (cc && !cc.startsWith('+')) {
+        cc = '+' + cc;
+    }
     const msg = defaultMessageTemplateInput.value;
 
-    settings.defaultCountryCode = cc || '91';
+    settings.defaultCountryCode = cc || '+91';
     settings.defaultMessageTemplate = msg;
 
     localStorage.setItem('cc_default_country_code', settings.defaultCountryCode);
