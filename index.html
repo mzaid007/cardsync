@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CardSync - Business Card Scanner to WhatsApp</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tesseract OCR Library -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <div class="logo-icon-wrapper">
+                    <i data-lucide="scan-line" class="logo-icon animate-pulse"></i>
+                </div>
+                <div>
+                    <h1>CardSync</h1>
+                    <p class="tagline">Scan cards. Chat instantly.</p>
+                </div>
+            </div>
+            <button id="settingsBtn" class="icon-btn" aria-label="Settings">
+                <i data-lucide="settings"></i>
+            </button>
+        </header>
+
+        <!-- Main Screen -->
+        <main class="app-main">
+            <!-- Capture Selection Section -->
+            <section id="scannerSection" class="card fade-in">
+                <div class="tab-container">
+                    <button id="tabCamera" class="tab-btn active">
+                        <i data-lucide="video" class="tab-icon"></i> Live Camera
+                    </button>
+                    <button id="tabUpload" class="tab-btn">
+                        <i data-lucide="image" class="tab-icon"></i> Capture/Upload File
+                    </button>
+                </div>
+
+                <!-- Live Camera Mode -->
+                <div id="cameraViewContainer" class="scanner-view-wrapper">
+                    <video id="video" autoplay playsinline muted></video>
+                    <!-- Visual frame guidelines -->
+                    <div class="scanner-frame">
+                        <div class="corner top-left"></div>
+                        <div class="corner top-right"></div>
+                        <div class="corner bottom-left"></div>
+                        <div class="corner bottom-right"></div>
+                        <div class="scanner-laser"></div>
+                        <div class="scanner-tip">Align business card here</div>
+                    </div>
+                    <div id="videoError" class="video-error-message hidden">
+                        <i data-lucide="alert-circle" class="error-icon"></i>
+                        <p>Camera access denied or unsupported.</p>
+                        <p class="subtext">Please switch to "Capture/Upload File" tab to take a photo or select an image.</p>
+                    </div>
+                </div>
+
+                <!-- Capture controls -->
+                <div id="cameraControls" class="camera-controls-wrapper">
+                    <button id="captureBtn" class="action-btn primary-btn">
+                        <i data-lucide="camera" class="btn-icon"></i> Capture Card
+                    </button>
+                </div>
+
+                <!-- Upload Mode -->
+                <div id="uploadViewContainer" class="scanner-view-wrapper hidden">
+                    <label for="fileInput" class="upload-dropzone" id="dropzone">
+                        <i data-lucide="upload-cloud" class="upload-icon"></i>
+                        <span class="upload-title">Take photo or upload image</span>
+                        <span class="upload-subtitle">Supports JPG, PNG</span>
+                        <input type="file" id="fileInput" accept="image/*" capture="environment">
+                    </label>
+                </div>
+            </section>
+
+            <!-- Image Preview & OCR Progress Panel -->
+            <section id="processingSection" class="card hidden fade-in">
+                <h2>Processing Image</h2>
+                <div class="preview-canvas-wrapper">
+                    <canvas id="previewCanvas"></canvas>
+                </div>
+                
+                <div class="ocr-progress-container">
+                    <div class="ocr-status-row">
+                        <span id="ocrStatusText">Preparing scan...</span>
+                        <span id="ocrProgressPercent">0%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div id="ocrProgressBar" class="progress-bar-fill"></div>
+                    </div>
+                </div>
+                <button id="cancelOcrBtn" class="action-btn secondary-btn">
+                    <i data-lucide="x" class="btn-icon"></i> Cancel Scan
+                </button>
+            </section>
+
+            <!-- Results & Redirection Section -->
+            <section id="resultsSection" class="card hidden fade-in">
+                <h2>Scanned Results</h2>
+                
+                <div class="form-group">
+                    <label for="phoneNumber">WhatsApp Phone Number</label>
+                    <div class="phone-input-group">
+                        <select id="countrySelect" class="country-dropdown">
+                            <!-- Populated dynamically via JS, defaults to saved default -->
+                        </select>
+                        <input type="tel" id="phoneNumber" placeholder="Enter phone number" autocomplete="tel">
+                    </div>
+                    <p class="input-help">Format: Enter local number. Country code is prepended automatically.</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="whatsappMessage">Message Preview</label>
+                    <textarea id="whatsappMessage" rows="4" placeholder="Your WhatsApp message..."></textarea>
+                    <p class="input-help">You can edit the message here before sending.</p>
+                </div>
+
+                <div class="action-grid">
+                    <button id="sendBtn" class="action-btn primary-btn whatsapp-btn">
+                        <i data-lucide="message-square" class="btn-icon"></i> Open in WhatsApp
+                    </button>
+                    <button id="resetBtn" class="action-btn secondary-btn">
+                        <i data-lucide="rotate-ccw" class="btn-icon"></i> Scan New Card
+                    </button>
+                </div>
+
+                <!-- Collapsible extracted raw text for validation -->
+                <details class="raw-text-details">
+                    <summary>View Scanned Text</summary>
+                    <div class="raw-text-wrapper">
+                        <pre id="extractedRawText"></pre>
+                    </div>
+                </details>
+            </section>
+        </main>
+
+        <!-- Settings Modal / Slider Drawer -->
+        <div id="settingsModal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <header class="modal-header">
+                    <h2>Configuration Settings</h2>
+                    <button id="closeSettingsBtn" class="close-btn" aria-label="Close Settings">
+                        <i data-lucide="x"></i>
+                    </button>
+                </header>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="defaultCountryCode">Default Country Code</label>
+                        <input type="text" id="defaultCountryCode" placeholder="e.g. 1 (US), 91 (IN)" value="91">
+                        <p class="input-help">Used to prepend to local numbers if no country code is found on the business card.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="defaultMessageTemplate">Default Message Template</label>
+                        <textarea id="defaultMessageTemplate" rows="6" placeholder="Hi! Nice meeting you today. Let's keep in touch!"></textarea>
+                        <p class="input-help">This is your standard message template. Saved in browser storage.</p>
+                    </div>
+                    
+                    <button id="saveSettingsBtn" class="action-btn primary-btn full-width">
+                        <i data-lucide="save" class="btn-icon"></i> Save Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Cards are processed 100% locally. No data leaves your device.</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Initialize lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
