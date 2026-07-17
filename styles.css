@@ -248,10 +248,10 @@ body {
 
 .scanner-tip {
     position: absolute;
-    bottom: -32px;
+    bottom: 12px;
     left: 50%;
     transform: translateX(-50%);
-    width: 100%;
+    width: 90%;
     text-align: center;
     font-size: 0.75rem;
     color: var(--text-secondary);
