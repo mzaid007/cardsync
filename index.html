@@ -8,7 +8,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -19,19 +19,26 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Ambient Background Glow Spheres -->
+    <div class="ambient-glow-wrapper" aria-hidden="true">
+        <div class="glow-sphere glow-magenta"></div>
+        <div class="glow-sphere glow-indigo"></div>
+        <div class="glow-sphere glow-teal"></div>
+    </div>
+
     <div class="app-container">
-        <!-- Header -->
-        <header class="app-header">
+        <!-- Floating Glass Header -->
+        <header class="app-header glass-header">
             <div class="logo">
                 <div class="logo-icon-wrapper">
-                    <i data-lucide="scan-line" class="logo-icon animate-pulse"></i>
+                    <i data-lucide="scan-face" class="logo-icon"></i>
                 </div>
                 <div>
-                    <h1>CardSync</h1>
-                    <p class="tagline">Scan cards. Chat instantly.</p>
+                    <h1>Card<span class="magnifier-text">Sync</span></h1>
+                    <p class="tagline">Forward-deployed OCR messaging</p>
                 </div>
             </div>
-            <button id="settingsBtn" class="icon-btn" aria-label="Settings">
+            <button id="settingsBtn" class="icon-btn settings-btn" aria-label="Settings">
                 <i data-lucide="settings"></i>
             </button>
         </header>
@@ -39,7 +46,7 @@
         <!-- Main Screen -->
         <main class="app-main">
             <!-- Capture Selection Section -->
-            <section id="scannerSection" class="card fade-in">
+            <section id="scannerSection" class="card card-glass fade-in">
                 <div class="tab-container">
                     <button id="tabCamera" class="tab-btn active">
                         <i data-lucide="video" class="tab-icon"></i> Capture
@@ -63,23 +70,25 @@
                     </div>
                     <div id="videoError" class="video-error-message hidden">
                         <i data-lucide="alert-circle" class="error-icon"></i>
-                        <p>Camera access denied or unsupported.</p>
-                        <p class="subtext">Please switch to "Capture/Upload File" tab to take a photo or select an image.</p>
+                        <p>Camera access blocked or unsupported.</p>
+                        <p class="subtext">Please use the "Upload" tab to snap a photo or choose an image file.</p>
                     </div>
                 </div>
 
                 <!-- Capture controls -->
                 <div id="cameraControls" class="camera-controls-wrapper">
-                    <button id="captureBtn" class="action-btn primary-btn">
-                        <i data-lucide="camera" class="btn-icon"></i> Capture Card
+                    <button id="captureBtn" class="action-btn primary-btn rainbow-btn">
+                        <span class="btn-text">Capture Card</span>
                     </button>
                 </div>
 
                 <!-- Upload Mode -->
                 <div id="uploadViewContainer" class="scanner-view-wrapper hidden">
                     <label for="fileInput" class="upload-dropzone" id="dropzone">
-                        <i data-lucide="upload-cloud" class="upload-icon"></i>
-                        <span class="upload-title">Take photo or upload image</span>
+                        <div class="upload-icon-wrapper">
+                            <i data-lucide="upload-cloud" class="upload-icon"></i>
+                        </div>
+                        <span class="upload-title">Choose or Drop Card</span>
                         <span class="upload-subtitle">Supports JPG, PNG</span>
                         <input type="file" id="fileInput" accept="image/*">
                     </label>
@@ -87,15 +96,15 @@
             </section>
 
             <!-- Image Preview & OCR Progress Panel -->
-            <section id="processingSection" class="card hidden fade-in">
-                <h2>Processing Image</h2>
+            <section id="processingSection" class="card card-glass hidden fade-in">
+                <h2><i data-lucide="cpu" class="section-icon"></i> Processing Image</h2>
                 <div class="preview-canvas-wrapper">
                     <canvas id="previewCanvas"></canvas>
                 </div>
                 
                 <div class="ocr-progress-container">
                     <div class="ocr-status-row">
-                        <span id="ocrStatusText">Preparing scan...</span>
+                        <span id="ocrStatusText">Initializing engine...</span>
                         <span id="ocrProgressPercent">0%</span>
                     </div>
                     <div class="progress-bar-bg">
@@ -108,14 +117,14 @@
             </section>
 
             <!-- Results & Redirection Section -->
-            <section id="resultsSection" class="card hidden fade-in">
-                <h2>Scanned Results</h2>
+            <section id="resultsSection" class="card card-glass hidden fade-in">
+                <h2><i data-lucide="sparkles" class="section-icon"></i> Scanned Results</h2>
                 
                 <div class="form-group">
                     <label for="phoneNumber">WhatsApp Phone Number</label>
                     <div class="phone-input-group">
                         <select id="countrySelect" class="country-dropdown">
-                            <!-- Populated dynamically via JS, defaults to saved default -->
+                            <!-- Populated dynamically via JS -->
                         </select>
                         <input type="tel" id="phoneNumber" placeholder="Enter phone number" autocomplete="tel">
                     </div>
@@ -130,10 +139,10 @@
 
                 <div class="action-grid">
                     <button id="sendBtn" class="action-btn primary-btn whatsapp-btn">
-                        <i data-lucide="message-square" class="btn-icon"></i> Open in WhatsApp
+                        <span class="btn-text">Open in WhatsApp</span>
                     </button>
                     <button id="resetBtn" class="action-btn secondary-btn">
-                        <i data-lucide="rotate-ccw" class="btn-icon"></i> Scan New Card
+                        <i data-lucide="refresh-cw" class="btn-icon"></i> Scan New Card
                     </button>
                 </div>
 
@@ -147,11 +156,11 @@
             </section>
         </main>
 
-        <!-- Settings Modal / Slider Drawer -->
+        <!-- Settings Modal / Sidebar Menu Drawer -->
         <div id="settingsModal" class="modal-overlay hidden">
-            <div class="modal-card">
+            <div class="modal-card menu-drawer-card">
                 <header class="modal-header">
-                    <h2>Configuration Settings</h2>
+                    <h2>Configuration</h2>
                     <button id="closeSettingsBtn" class="close-btn" aria-label="Close Settings">
                         <i data-lucide="x"></i>
                     </button>
@@ -169,8 +178,8 @@
                         <p class="input-help">This is your standard message template. Saved in browser storage.</p>
                     </div>
                     
-                    <button id="saveSettingsBtn" class="action-btn primary-btn full-width">
-                        <i data-lucide="save" class="btn-icon"></i> Save Settings
+                    <button id="saveSettingsBtn" class="action-btn primary-btn rainbow-btn full-width">
+                        <span class="btn-text">Save Settings</span>
                     </button>
                 </div>
             </div>
