@@ -841,6 +841,89 @@ textarea {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* User Guide Section styling */
+.guide-section {
+    padding: 16px 20px;
+    margin-top: 10px;
+}
+
+.guide-details summary {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+    letter-spacing: -0.01em;
+}
+
+.guide-details summary::before {
+    content: "▶";
+    font-size: 0.6rem;
+    display: inline-block;
+    transition: transform 0.3s ease;
+    color: var(--text-muted);
+}
+
+.guide-details[open] summary::before {
+    transform: rotate(90deg);
+}
+
+.guide-content {
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border-top: 1px solid var(--glass-border);
+    padding-top: 18px;
+}
+
+.guide-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.step-num {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    font-weight: 600;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.step-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    font-weight: 300;
+}
+
+.step-text strong {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.inline-icon {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    color: var(--text-secondary);
+    vertical-align: middle;
+    margin: 0 2px;
 }
