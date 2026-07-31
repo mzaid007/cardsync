@@ -1,5 +1,7 @@
 # CardSync 🎴💬
 
+[![Open Source Love](https://badges.frapsoft.org/os/v2/open-source.svg?v=103)](https://github.com/mzaid007/cardsync) [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
+
 CardSync is a modern, responsive, and serverless single-page web application designed for mobile and desktop browsers. It allows users to scan business cards using their phone's camera, extract phone numbers instantly, and initiate a WhatsApp conversation with a pre-configured, custom message template in one tap.
 
 No sign-in, account creation, or backend database is required. Everything runs entirely client-side in the browser.
